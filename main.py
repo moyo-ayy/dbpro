@@ -1,5 +1,88 @@
 import psycopg2
+import random
+from datetime import datetime
 
+
+def insertPlayer():
+    # Initialize variables
+    name = input("Enter player name: ")
+
+    #Automate player_id
+    player_id = random.randint(10**8, (10**9)-1)
+
+    #add check to make sure randomized player id not already in player! / not urgent
+
+    # Initialize other statistics with input validation
+    stats = ["pace", "shooting", "passing", "dribbling", "defending", "physicality"]
+    player_stats = {}
+
+    randomizeStats = input("Do you wish to randomize stats (y/n): ")
+    
+    
+    for stat in stats:
+        #normal stats input loop
+        if randomizeStats != "y":
+            value = input(f"Enter the player's {stat} rating: ")
+            while not value.isdigit() or int(value) > 100 or int(value) < 0:
+                print(f"{stat} must be an integer less than 100")
+                value = input(f"Enter {stat} (integer): ")
+            value = int(value)
+        #randomize stats from 60-100
+        else:
+            value = random.randint(60, 100)
+
+        #store the stat
+        player_stats[stat] = value
+
+    # Calculate the overall as the average of other stats
+    overall = sum(player_stats.values()) / len(player_stats)
+
+    #Actual commit statement
+    cur.execute("INSERT INTO players (name,pid,pace,shooting,passing,dribbling,defending,physicality,overall) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(name,player_id,player_stats["pace"],player_stats["shooting"],player_stats["passing"],player_stats["dribbling"],player_stats["defending"],player_stats["physicality"],overall))
+    con.commit()
+
+def insertGame():
+    # Input for game data
+
+    #date declaration
+    date = ""
+
+    #date input validation
+    while True:
+        date_str = input("Enter the date of the game (YYYY-MM-DD HH:MM:SS): ")
+        try:
+            date = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+            break
+        except ValueError:
+            print("Invalid date format. Please use the format YYYY-MM-DD HH:MM:SS.")
+
+    #location variable
+    location = input("Enter the location: ")
+
+    #left and right team score initilaization and validation
+    leftteamscore = (input("Enter the left team score: "))
+    while not leftteamscore.isdigit():
+        print(f"Score must be an integer")
+        leftteamscore = input(f"Enter the left team score: ")
+    leftteamscore = int(leftteamscore)
+    rightteamscore = (input("Enter the right team score: "))
+    while not rightteamscore.isdigit():
+        print(f"Score must be an integer")
+        rightteamscore = input(f"Enter the right team score: ")
+    rightteamscore = int(rightteamscore)
+    
+    # Generate a random 9-digit game ID
+    game_id = random.randint(10**8, (10**9)-1)
+
+    # Actual data insertion
+    cur.execute("INSERT INTO games (date, location, leftteamscore, rightteamscore, gid) VALUES (%s, %s, %s, %s, %s)", (date, location, leftteamscore, rightteamscore, game_id))
+    con.commit()
+
+def insertTeam():
+    pass
+
+#be sure to change this to the dbproj database on your system
+#as well as the password
 con = psycopg2.connect(
 database="dbproj",
 user="postgres",
@@ -8,10 +91,7 @@ host="localhost",
 port= '5432'
 )
 
-cursor = con.cursor()
-cursor.execute("SELECT * FROM players")
-res = cursor.fetchall()
-print(res)
+cur = con.cursor()
 
 while True:
     print("\n\nMenu:")
@@ -23,8 +103,13 @@ while True:
     choice = input("Enter your choice: ")
 
     if choice == "1":
-        print("slay")
+        insertPlayer()
+    elif choice == "2":
+        insertTeam()
+    elif choice == "3":
+        insertGame()
     elif choice == "4":
+        con.close()
         break
     else:
         print("Invalid input")
