@@ -79,7 +79,42 @@ def insertGame():
     con.commit()
 
 def insertTeam():
-    pass
+    name = input("Enter team name: ")
+    league = input("Enter team league: ")
+
+    #Automate player_id
+    team_id = random.randint(10**8, (10**9)-1)
+
+    #add check to make sure randomized tid id not already in team! / not urgent
+
+    # Initialize other statistics with input validation
+    stats = ["atkrating", "mdrating", "dfrating"]
+    team_stats = {}
+
+    randomizeStats = input("Do you wish to randomize stats (y/n): ")
+    
+    
+    for stat in stats:
+        #normal stats input loop
+        if randomizeStats != "y":
+            value = input(f"Enter the teams's {stat} rating: ")
+            while not value.isdigit() or int(value) > 100 or int(value) < 0:
+                print(f"{stat} must be an integer less than 100")
+                value = input(f"Enter {stat} (integer): ")
+            value = int(value)
+        #randomize stats from 60-100
+        else:
+            value = random.randint(70, 100)
+
+        #store the stat
+        team_stats[stat] = value
+
+    # Calculate the overall as the average of other stats
+    overall = sum(team_stats.values()) / len(team_stats)
+
+    #Actual commit statement
+    cur.execute("INSERT INTO teams (name,league,atkrating,mdrating,dfrating,overall,tid) VALUES (%s,%s,%s,%s,%s,%s,%s)",(name,league,team_stats["atkrating"],team_stats["mdrating"],team_stats["dfrating"],overall,team_id))
+    con.commit()
 
 #be sure to change this to the dbproj database on your system
 #as well as the password
