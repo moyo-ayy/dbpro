@@ -82,7 +82,7 @@ def insertTeam():
     name = input("Enter team name: ")
     league = input("Enter team league: ")
 
-    #Automate player_id
+    #Automate team_id
     team_id = random.randint(10**8, (10**9)-1)
 
     #add check to make sure randomized tid id not already in team! / not urgent
@@ -102,7 +102,7 @@ def insertTeam():
                 print(f"{stat} must be an integer less than 100")
                 value = input(f"Enter {stat} (integer): ")
             value = int(value)
-        #randomize stats from 60-100
+        #randomize stats from 70-100
         else:
             value = random.randint(70, 100)
 
@@ -115,6 +115,23 @@ def insertTeam():
     #Actual commit statement
     cur.execute("INSERT INTO teams (name,league,atkrating,mdrating,dfrating,overall,tid) VALUES (%s,%s,%s,%s,%s,%s,%s)",(name,league,team_stats["atkrating"],team_stats["mdrating"],team_stats["dfrating"],overall,team_id))
     con.commit()
+
+#search for a team's players
+def viewTeam():
+    teamName = input("Enter the Team Name: ")
+    cur.execute("SELECT tid FROM teams WHERE name = %s",(teamName,))
+    team = cur.fetchall()
+    #after getting the tid, do input validation and fetch the players
+    if team == []:
+        print("This team does not exist")
+        return
+    cur.execute("SELECT * FROM playsFor pf NATURAL JOIN players p WHERE pf.tid = %s",(team[0][0],))
+    players = cur.fetchall()
+    #display players, needs work
+    for i in players:
+        print(players)
+    
+
 
 #be sure to change this to the dbproj database on your system
 #as well as the password
@@ -133,7 +150,7 @@ while True:
     print("1. Create a player")
     print("2. Create a team")
     print("3. Create a game")
-    print("4. Exit")
+    print("10. Exit")
 
     choice = input("Enter your choice: ")
 
@@ -144,6 +161,8 @@ while True:
     elif choice == "3":
         insertGame()
     elif choice == "4":
+        viewTeam()
+    elif choice == "10":
         con.close()
         break
     else:
