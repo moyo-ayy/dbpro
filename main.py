@@ -1,5 +1,6 @@
 import psycopg2
 import random
+from prettytable import PrettyTable
 from datetime import datetime
 
 
@@ -8,9 +9,13 @@ def insertPlayer():
     name = input("Enter player name: ")
 
     #Automate player_id
-    player_id = random.randint(10**8, (10**9)-1)
-
-    #add check to make sure randomized player id not already in player! / not urgent
+    cur.execute("SELECT pid FROM PLAYERS ORDER BY pid DESC")
+    pids = cur.fetchall()
+    if pids == []:
+        player_id = 1
+    else:
+        player_id = pids[0][0] + 1
+    # player_id = random.randint(10**8, (10**9)-1)
 
     # Initialize other statistics with input validation
     stats = ["pace", "shooting", "passing", "dribbling", "defending", "physicality"]
@@ -125,14 +130,17 @@ def viewTeam():
     if team == []:
         print("This team does not exist")
         return
-    cur.execute("SELECT * FROM playsFor pf NATURAL JOIN players p WHERE pf.tid = %s",(team[0][0],))
+    cur.execute("SELECT p.pid, p.name, pf.position FROM playsFor pf NATURAL JOIN players p WHERE pf.tid = %s",(team[0][0],))
     players = cur.fetchall()
-    #display players, needs work
-    for i in players:
-        print(players)
+
+    table = PrettyTable()
+    table.field_names = ["pid", "position", "name"]
+
+    for row in players:
+        table.add_row(row)
+
+    print(table)
     
-
-
 #be sure to change this to the dbproj database on your system
 #as well as the password
 con = psycopg2.connect(
@@ -150,6 +158,8 @@ while True:
     print("1. Create a player")
     print("2. Create a team")
     print("3. Create a game")
+    
+    print("4. Display a team")
     print("10. Exit")
 
     choice = input("Enter your choice: ")
