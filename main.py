@@ -124,7 +124,7 @@ def insertTeam():
 #search for a team's players
 def viewTeam():
     teamName = input("Enter the Team Name: ")
-    cur.execute("SELECT tid FROM teams WHERE name = %s",(teamName,))
+    cur.execute("SELECT tid FROM teams WHERE name ILIKE %s",(teamName,))
     team = cur.fetchall()
     #after getting the tid, do input validation and fetch the players
     if team == []:
@@ -134,11 +134,23 @@ def viewTeam():
     players = cur.fetchall()
 
     table = PrettyTable()
-    table.field_names = ["pid", "position", "name"]
+    table.field_names = ["pid", "name", "position"]
 
     for row in players:
         table.add_row(row)
 
+    print(table)
+
+def viewPlayer():
+    playerName = input("Enter the Player's Name: ")
+    cur.execute("SELECT * FROM players WHERE name ILIKE %s",(playerName,))
+    player = cur.fetchone()
+    if player == None:
+        print("This player does not exist")
+        return
+    table = PrettyTable()
+    table.field_names = ["name", "pace", "shooting", "passing", "dribbling", "defending", "physicality", "overall"]
+    table.add_row(player[0:-1])
     print(table)
     
 #be sure to change this to the dbproj database on your system
@@ -158,8 +170,9 @@ while True:
     print("1. Create a player")
     print("2. Create a team")
     print("3. Create a game")
-    
-    print("4. Display a team")
+    # print("\n")
+    print("4. Display a Team's Roster")
+    print("5. Display a player's information")
     print("10. Exit")
 
     choice = input("Enter your choice: ")
@@ -172,6 +185,8 @@ while True:
         insertGame()
     elif choice == "4":
         viewTeam()
+    elif choice == "5":
+        viewPlayer()
     elif choice == "10":
         con.close()
         break
