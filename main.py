@@ -124,6 +124,7 @@ def insertTeam():
 #search for a team's players
 def viewTeam():
     teamName = input("Enter the Team Name: ")
+    teamName = teamName.strip()
     cur.execute("SELECT tid FROM teams WHERE name ILIKE %s",(teamName,))
     team = cur.fetchall()
     #after getting the tid, do input validation and fetch the players
@@ -143,6 +144,7 @@ def viewTeam():
 
 def viewPlayer():
     playerName = input("Enter the Player's Name: ")
+    playerName = playerName.strip()
     cur.execute("SELECT * FROM players WHERE name ILIKE %s",(playerName,))
     player = cur.fetchone()
     if player == None:
