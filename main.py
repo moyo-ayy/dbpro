@@ -3,7 +3,6 @@ import random
 from prettytable import PrettyTable
 from datetime import datetime
 
-
 def insertPlayer():
     # Initialize variables
     name = input("Enter player name: ")
@@ -83,6 +82,19 @@ def insertGame():
     cur.execute("INSERT INTO games (date, location, leftteamscore, rightteamscore, gid) VALUES (%s, %s, %s, %s, %s)", (date, location, leftteamscore, rightteamscore, game_id))
     con.commit()
 
+# view all games in the games table
+def viewAllGames():
+    cur.execute("SELECT date, location, leftteamscore, rightteamscore FROM games")
+    games = cur.fetchall()
+
+    table = PrettyTable()
+    table.field_names = ["date", "location", "leftteamscore", "rightteamscore"]
+
+    for row in games:
+        table.add_row(row)
+
+    print(table)
+
 def insertTeam():
     name = input("Enter team name: ")
     league = input("Enter team league: ")
@@ -121,8 +133,21 @@ def insertTeam():
     cur.execute("INSERT INTO teams (name,league,atkrating,mdrating,dfrating,overall,tid) VALUES (%s,%s,%s,%s,%s,%s,%s)",(name,league,team_stats["atkrating"],team_stats["mdrating"],team_stats["dfrating"],overall,team_id))
     con.commit()
 
+# view all team names in the teams table
+def viewAllTeams():
+    cur.execute("SELECT name FROM teams")
+    teams = cur.fetchall()
+
+    table = PrettyTable()
+    table.field_names = ["name"]
+
+    for row in teams:
+        table.add_row(row)
+
+    print(table)
+
 #search for a team's players
-def viewTeam():
+def displayTeam():
     teamName = input("Enter the Team Name: ")
     teamName = teamName.strip()
     cur.execute("SELECT tid FROM teams WHERE name ILIKE %s",(teamName,))
@@ -142,7 +167,20 @@ def viewTeam():
 
     print(table)
 
-def viewPlayer():
+# view all players in the players table
+def viewAllPlayers():
+    cur.execute("SELECT name FROM players")
+    teams = cur.fetchall()
+
+    table = PrettyTable()
+    table.field_names = ["name"]
+
+    for row in teams:
+        table.add_row(row)
+
+    print(table)
+
+def displayPlayer():
     playerName = input("Enter the Player's Name: ")
     playerName = playerName.strip()
     cur.execute("SELECT * FROM players WHERE name ILIKE %s",(playerName,))
@@ -154,29 +192,40 @@ def viewPlayer():
     table.field_names = ["name", "pace", "shooting", "passing", "dribbling", "defending", "physicality", "overall"]
     table.add_row(player[0:-1])
     print(table)
+
+def addPlayerToTeam():
+    playerName = input( "Enter the player's name: " )
+    playerName = playerName.strip()
+    teamName = input( "Enter the team name: " )
+    teamName = teamName.strip()
     
-#be sure to change this to the dbproj database on your system
-#as well as the password
+# database connection request. change fields according to your local machine's corresponding value
 con = psycopg2.connect(
 database="dbproj",
 user="postgres",
-password="adekunmi",
+password="password",
 host="localhost",
 port= '5432'
 )
 
 cur = con.cursor()
 
+# postgres super user menu
 while True:
-    print("\n\nMenu:")
+    print("")
+    print("Welcome back to FIFAgres! What would you like to do?")
+    print("")
     print("1. Create a player")
     print("2. Create a team")
     print("3. Create a game")
-    # print("\n")
-    print("4. Display a Team's Roster")
-    print("5. Display a player's information")
-    print("10. Exit")
-
+    print("4. View all games")
+    print("5. View all teams")
+    print("6. Display a team's roster")
+    print("7. View all players")
+    print("8. Display a player's information")
+    print("9. Add player to team")
+    print("0. Exit")
+    print("")
     choice = input("Enter your choice: ")
 
     if choice == "1":
@@ -186,13 +235,23 @@ while True:
     elif choice == "3":
         insertGame()
     elif choice == "4":
-        viewTeam()
+        viewAllGames()
     elif choice == "5":
-        viewPlayer()
-    elif choice == "10":
+        viewAllTeams()
+    elif choice == "6":
+        displayTeam()
+    elif choice == "7":
+        viewAllPlayers()
+    elif choice == "8":
+        displayPlayer()
+    elif choice == "9":
+        addPlayerToTeam()
+    elif choice == "0":
+        print("")
+        print("Thank you for using FIFAgres! Have a nice day!")
+        print("")
         con.close()
         break
     else:
-        print("Invalid input")
-        continue
-    
+        print("")
+        print("Invalid input! Please select from one of the inputs below.")
