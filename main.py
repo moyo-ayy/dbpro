@@ -234,7 +234,77 @@ def addPlayerToTeam():
 
     print()
     print( "Player successfully added to team!" )
+
+# remove a player from a team
+def removePlayerFromTeam():
+    playerName = input( "Which player are you removing from a team?: " )
+    playerName = playerName.strip()
+
+    # check if player exists in players table
+    cur.execute( "SELECT * FROM players WHERE name = %s", (playerName,) )
+    player = cur.fetchone()
+    if player == None:
+        print()
+        print("This player does not exist!")
+        return
+    playerid = player[8]
     
+    # check if player already plays for some team
+    cur.execute( "SELECT * FROM playsfor WHERE pid = %s", (playerid,) )
+    alreadyPlays = cur.fetchone()
+    if alreadyPlays == None:
+        print()
+        print( "This player already does not play for any team!" )
+        return
+
+    cur.execute( "DELETE FROM playsfor WHERE pid = %s", (playerid,) )
+    con.commit()
+
+    print()
+    print( "Player successfully removed from team!" )
+
+def removePlayer():
+    playerName = input( "Which player are you removing from a team?: " )
+    playerName = playerName.strip()
+
+    # check if player exists in players table
+    cur.execute( "SELECT * FROM players WHERE name = %s", (playerName,) )
+    player = cur.fetchone()
+    if player == None:
+        print()
+        print("This player does not exist!")
+        return
+
+    cur.execute( "DELETE FROM players WHERE name = %s", (playerName,) )
+    con.commit()
+
+    print()
+    print( "Player successfully deleted!" )
+    
+def removeTeam():
+    teamName = input( "Which team are you deleting?: " )
+    teamName = teamName.strip()
+
+    # check if team exists in teams table
+    cur.execute( "SELECT * FROM teams WHERE name = %s", (teamName,) )
+    team = cur.fetchone()
+    if team == None:
+        print()
+        print("This team does not exist!")
+        return
+
+    cur.execute( "DELETE FROM teams WHERE name = %s", (teamName,) )
+    con.commit()
+
+    print()
+    print( "Team successfully deleted!" )
+
+def removeGame():
+    gameName = input( "Which game are you deleting?: " )
+
+    print()
+    print( "Game successfully deleted!" )
+
 # database connection request. change fields according to your local machine's corresponding value
 con = psycopg2.connect(
     database="dbproj",
@@ -254,12 +324,16 @@ while True:
     print("1. Create a player")
     print("2. Create a team")
     print("3. Create a game")
-    print("4. View all games")
+    print("4. View all players")
     print("5. View all teams")
-    print("6. Display a team's roster")
-    print("7. View all players")
-    print("8. Display a player's information")
+    print("6. View all games")
+    print("7. Display a player's information")
+    print("8. Display a team's roster")
     print("9. Add player to team")
+    print("10. Remove player from team")
+    print("11. Delete a player")
+    print("12. Delete a team")
+    print("13. Delete a game")
     print("0. Exit")
     print("")
     choice = input("Enter your choice: ")
@@ -271,17 +345,25 @@ while True:
     elif choice == "3":
         insertGame()
     elif choice == "4":
-        viewAllGames()
+        viewAllPlayers()
     elif choice == "5":
         viewAllTeams()
     elif choice == "6":
-        displayTeam()
+        viewAllGames()
     elif choice == "7":
-        viewAllPlayers()
-    elif choice == "8":
         displayPlayer()
+    elif choice == "8":
+        displayTeam()
     elif choice == "9":
         addPlayerToTeam()
+    elif choice == "10":
+        removePlayerFromTeam()
+    elif choice == "11":
+        removePlayer()
+    elif choice == "12":
+        removeTeam()
+    elif choice == "13":
+        removeGame()
     elif choice == "0":
         print("")
         print("Thank you for using FIFAgres! Have a nice day!")
