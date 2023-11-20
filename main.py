@@ -150,7 +150,7 @@ def viewAllTeams():
 def displayTeam():
     teamName = input("Enter the Team Name: ")
     teamName = teamName.strip()
-    cur.execute("SELECT tid FROM teams WHERE name ILIKE %s",(teamName,))
+    cur.execute("SELECT tid FROM teams WHERE name = %s",(teamName,))
     team = cur.fetchall()
     #after getting the tid, do input validation and fetch the players
     if team == []:
@@ -183,7 +183,7 @@ def viewAllPlayers():
 def displayPlayer():
     playerName = input("Enter the Player's Name: ")
     playerName = playerName.strip()
-    cur.execute("SELECT * FROM players WHERE name ILIKE %s",(playerName,))
+    cur.execute("SELECT * FROM players WHERE name = %s",(playerName,))
     player = cur.fetchone()
     if player == None:
         print("This player does not exist")
@@ -194,18 +194,54 @@ def displayPlayer():
     print(table)
 
 def addPlayerToTeam():
-    playerName = input( "Enter the player's name: " )
+    playerName = input( "Which player are you assigning to a team?: " )
     playerName = playerName.strip()
-    teamName = input( "Enter the team name: " )
+
+    # check if player exists in players table
+    cur.execute( "SELECT * FROM players WHERE name = %s", (playerName,) )
+    player = cur.fetchone()
+    if player == None:
+        print()
+        print("This player does not exist!")
+        return
+    playerid = player[8]
+    
+    # check if player already plays for some team
+    cur.execute( "SELECT * FROM playsfor WHERE pid = %s", (playerid,) )
+    alreadyPlays = cur.fetchone()
+    if alreadyPlays != None:
+        print()
+        print( "This player already plays for a team!" )
+        return
+    
+    teamName = input( "Which team is this player playing for?: " )
     teamName = teamName.strip()
+
+    # check if team exists in teams table
+    cur.execute( "SELECT * FROM teams WHERE name = %s", (teamName,) )
+    team = cur.fetchone()
+    if team == None:
+        print()
+        print("This team does not exist!")
+        return
+    teamid = team[6]
+    
+    position = input( "What position is this player going to play?: " )
+    position = position.strip()
+
+    cur.execute( "INSERT INTO playsfor (pid, tid, position) VALUES (%s, %s, %s)", (playerid, teamid, position) )
+    con.commit()
+
+    print()
+    print( "Player successfully added to team!" )
     
 # database connection request. change fields according to your local machine's corresponding value
 con = psycopg2.connect(
-database="dbproj",
-user="postgres",
-password="password",
-host="localhost",
-port= '5432'
+    database="dbproj",
+    user="postgres",
+    password="password",
+    host="localhost",
+    port= '5432'
 )
 
 cur = con.cursor()
