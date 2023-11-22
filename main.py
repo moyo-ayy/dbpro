@@ -77,12 +77,30 @@ def insertGame():
         print(f"Score must be an integer")
         rightteamscore = input(f"Enter the right team score: ")
     rightteamscore = int(rightteamscore)
-    
+
+    leftTeamName = input("Enter the Left Team Name: ")
+    leftTeamName = leftTeamName.strip()
+    cur.execute("SELECT tid FROM teams WHERE name = %s",(leftTeamName,))
+    leftTeamID = cur.fetchall()
+    #after getting the tid, do input validation and fetch the players
+    if leftTeamID == []:
+        print("This team does not exist")
+        return
+
+    rightTeamName = input("Enter the Right Team Name: ")
+    rightTeamName = rightTeamName.strip()
+    cur.execute("SELECT tid FROM teams WHERE name = %s",(rightTeamName,))
+    rightTeamID = cur.fetchall()
+    #after getting the tid, do input validation and fetch the players
+    if leftTeamID == []:
+        print("This team does not exist")
+        return
+
     # Generate a random 9-digit game ID
     game_id = random.randint(10**8, (10**9)-1)
 
     # Actual data insertion
-    cur.execute("INSERT INTO games (date, location, leftteamscore, rightteamscore, gid) VALUES (%s, %s, %s, %s, %s)", (date, location, leftteamscore, rightteamscore, game_id))
+    cur.execute("INSERT INTO games (date, location, leftteamscore, rightteamscore, gid, leftteam, rightteam) VALUES (%s, %s, %s, %s, %s, %s, %s)", (date, location, leftteamscore, rightteamscore, game_id, leftTeamID[0][0], rightTeamID[0][0]))
     con.commit()
 
     print()
@@ -90,11 +108,12 @@ def insertGame():
 
 # view all games in the games table
 def viewAllGames():
-    cur.execute("SELECT date, location, leftteamscore, rightteamscore FROM games")
+    cur.execute("SELECT date, location, leftteamscore, rightteamscore, t1.name AS leftTeamName, t2.name as rightTeamName FROM games g JOIN \
+        teams t1 ON leftteam = t1.tid JOIN teams t2 ON rightteam = t2.tid")
     games = cur.fetchall()
 
     table = PrettyTable()
-    table.field_names = ["date", "location", "leftteamscore", "rightteamscore"]
+    table.field_names = ["date", "location", "leftteamscore", "rightteamscore", "leftteamname", "rightteamname"]
 
     for row in games:
         table.add_row(row)
@@ -332,7 +351,7 @@ def removeGame():
 con = psycopg2.connect(
     database="dbproj",
     user="postgres",
-    password="password",
+    password="adekunmi",
     host="localhost",
     port= '5432'
 )
