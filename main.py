@@ -20,7 +20,7 @@ def insertPlayer():
     stats = ["pace", "shooting", "passing", "dribbling", "defending", "physicality"]
     player_stats = {}
 
-    randomizeStats = input("Do you wish to randomize stats (y/n): ")
+    randomizeStats = input("Do you wish to randomize stats? (y/n): ")
     
     
     for stat in stats:
@@ -44,6 +44,9 @@ def insertPlayer():
     #Actual commit statement
     cur.execute("INSERT INTO players (name,pid,pace,shooting,passing,dribbling,defending,physicality,overall) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(name,player_id,player_stats["pace"],player_stats["shooting"],player_stats["passing"],player_stats["dribbling"],player_stats["defending"],player_stats["physicality"],overall))
     con.commit()
+
+    print()
+    print( "Player successfully created!" )
 
 def insertGame():
     # Input for game data
@@ -81,6 +84,9 @@ def insertGame():
     # Actual data insertion
     cur.execute("INSERT INTO games (date, location, leftteamscore, rightteamscore, gid) VALUES (%s, %s, %s, %s, %s)", (date, location, leftteamscore, rightteamscore, game_id))
     con.commit()
+
+    print()
+    print( "Game successfully created!" )
 
 # view all games in the games table
 def viewAllGames():
@@ -132,6 +138,9 @@ def insertTeam():
     #Actual commit statement
     cur.execute("INSERT INTO teams (name,league,atkrating,mdrating,dfrating,overall,tid) VALUES (%s,%s,%s,%s,%s,%s,%s)",(name,league,team_stats["atkrating"],team_stats["mdrating"],team_stats["dfrating"],overall,team_id))
     con.commit()
+
+    print()
+    print( "Team successfully created!" )
 
 # view all team names in the teams table
 def viewAllTeams():
@@ -311,6 +320,11 @@ def removeGame():
         print()
         print( "No games were ever played in this location!" )
 
+    gameYear = input( "What year did this game take place?: " )
+    gameYear = gameYear.strip()
+    gameYear.lower()
+    cur.execute( "SELECT * FROM games WHERE LOWER(location) = %s AND ",  )
+
     print()
     print( "Game successfully deleted!" )
 
@@ -344,6 +358,7 @@ while True:
     print("12. Delete a team")
     print("13. Delete a game")
     print("0. Exit")
+    
     print("")
     choice = input("Enter your choice: ")
 
