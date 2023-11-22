@@ -300,7 +300,16 @@ def removeTeam():
     print( "Team successfully deleted!" )
 
 def removeGame():
-    gameName = input( "Which game are you deleting?: " )
+    gameLocation = input( "Where did this game take place?: " )
+    gameLocation = gameLocation.strip()
+    gameLocation.lower()
+    
+    # check if any games were played in this location
+    cur.execute( "SELECT * FROM games WHERE LOWER(location) = %s", (gameLocation,) )
+    game = cur.fetchone()
+    if game == None:
+        print()
+        print( "No games were ever played in this location!" )
 
     print()
     print( "Game successfully deleted!" )
