@@ -376,22 +376,76 @@ def removeTeam():
 def removeGame():
     gameLocation = input( "Where did this game take place?: " )
     gameLocation = gameLocation.strip()
-    gameLocation.lower()
+    gameLocation = gameLocation.lower()
     
     # check if any games were played in this location
     cur.execute( "SELECT * FROM games WHERE LOWER(location) = %s", (gameLocation,) )
-    game = cur.fetchone()
-    if game == None:
+    game = cur.fetchall()
+    if game == []:
         print()
         print( "No games were ever played in this location!" )
+        return
+    elif len(game) == 1:
+        cur.execute( "DELETE FROM games WHERE LOWER(location) = %s", (gameLocation,) )
+        con.commit()
+
+        print()
+        print( "Game successfully deleted!" )
+        return
 
     gameYear = input( "What year did this game take place?: " )
     gameYear = gameYear.strip()
-    gameYear.lower()
-    cur.execute( "SELECT * FROM games WHERE LOWER(location) = %s AND ",  )
 
-    print()
-    print( "Game successfully deleted!" )
+    # check if any games were played in this location in this year
+    cur.execute( "SELECT * FROM games WHERE LOWER(location) = %s AND DATE_PART('year', date) = %s", (gameLocation, gameYear,)  )
+    game = cur.fetchall()
+    if game == []:
+        print()
+        print( "No games were ever played in this location and in this year!" )
+        return
+    elif len(game) == 1:
+        cur.execute( "DELETE FROM games WHERE LOWER(location) = %s AND DATE_PART('year', date) = %s", (gameLocation, gameYear,)  )
+        con.commit()
+
+        print()
+        print( "Game successfully deleted!" )
+        return
+
+    gameMonth = input( "What month did this game take place?: " )
+    gameMonth = gameMonth.strip()
+
+    # check if any games were played in this location in this year and month
+    cur.execute( "SELECT * FROM games WHERE LOWER(location) = %s AND DATE_PART('year', date) = %s AND DATE_PART('month', date) = %s", (gameLocation, gameYear, gameMonth,)  )
+    game = cur.fetchall()
+    if game == []:
+        print()
+        print( "No games were ever played in this location and in this year and month!" )
+        return
+    elif len(game) == 1:
+        cur.execute( "DELETE FROM games WHERE LOWER(location) = %s AND DATE_PART('year', date) = %s AND DATE_PART('month', date) = %s", (gameLocation, gameYear, gameMonth,)  )
+        con.commit()
+
+        print()
+        print( "Game successfully deleted!" )
+        return
+
+    gameDay = input( "What day did this game take place?: " )
+    gameDay = gameDay.strip()
+
+    # check if any games were played in this location in this year and month
+    cur.execute( "SELECT * FROM games WHERE LOWER(location) = %s AND DATE_PART('year', date) = %s AND DATE_PART('month', date) = %s AND DATE_PART('day', date) = %s", (gameLocation, gameYear, gameMonth, gameDay,)  )
+    game = cur.fetchall()
+    if game == []:
+        print()
+        print( "No games were ever played in this location and in this year and month and day!" )
+        return
+    elif len(game) == 1:
+        cur.execute( "DELETE FROM games WHERE LOWER(location) = %s AND DATE_PART('year', date) = %s AND DATE_PART('month', date) = %s AND DATE_PART('day', date) = %s", (gameLocation, gameYear, gameMonth, gameDay,)  )
+        con.commit()
+
+        print()
+        print( "Game successfully deleted!" )
+        return
 
 def removeManager():
     name = input( "What is the name of the manager you wish to delete: " )
@@ -416,7 +470,7 @@ def removeManager():
 con = psycopg2.connect(
     database="dbproj",
     user="postgres",
-    password="adekunmi",
+    password="password",
     host="localhost",
     port= '5432'
 )
