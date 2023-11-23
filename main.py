@@ -14,7 +14,6 @@ def insertPlayer():
         player_id = 1
     else:
         player_id = pids[0][0] + 1
-    # player_id = random.randint(10**8, (10**9)-1)
 
     # Initialize other statistics with input validation
     stats = ["pace", "shooting", "passing", "dribbling", "defending", "physicality"]
@@ -161,6 +160,41 @@ def insertTeam():
     print()
     print( "Team successfully created!" )
 
+#create a manager
+def insertManager():
+    # Initialize variables
+    name = input("Enter managers name: ")
+
+    #Automate player_id
+    cur.execute("SELECT mid FROM managers ORDER BY mid DESC")
+    mids = cur.fetchall()
+    if mids == []:
+        manager_id = 1
+    else:
+        manager_id = mids[0][0] + 1
+
+    teamName = input("Enter the team the manager manages: ")
+    teamName = teamName.strip()
+    cur.execute("SELECT tid FROM teams WHERE name = %s",(teamName,))
+    tid = cur.fetchall()
+
+    cur.execute("SELECT tid FROM managers WHERE tid = %s",(tid))
+    if (cur.fetchone()):
+        print("\nThis team already has a manager")
+        return
+
+    #after getting the tid, do input validation and fetch the players
+    if tid == []:
+        print("This team does not exist")
+        return
+    
+    cur.execute("INSERT INTO managers (name, tid, mid) VALUES (%s,%s,%s)",(name,tid[0][0],manager_id))
+
+    print("\nManager Successfully Inserted")
+
+    con.commit()
+
+
 # view all team names in the teams table
 def viewAllTeams():
     cur.execute("SELECT name FROM teams")
@@ -206,6 +240,18 @@ def viewAllPlayers():
     for row in teams:
         table.add_row(row)
 
+    print(table)
+
+def viewAllManagers():
+    cur.execute("SELECT m.name,t.name FROM managers m JOIN teams t ON m.tid = t.tid")
+    managers = cur.fetchall()
+
+    table = PrettyTable()
+    table.field_names = ["Name", "Team Name"]
+
+    for row in managers:
+        table.add_row(row)
+    
     print(table)
 
 def displayPlayer():
@@ -347,6 +393,25 @@ def removeGame():
     print()
     print( "Game successfully deleted!" )
 
+def removeManager():
+    name = input( "What is the name of the manager you wish to delete: " )
+    name = name.strip()
+
+    # check if team exists in teams table
+    cur.execute( "SELECT * FROM managers WHERE name = %s", (name,) )
+    manager = cur.fetchone()
+    if manager == None:
+        print()
+        print("This manager does not exist!")
+        return
+
+    cur.execute( "DELETE FROM managers WHERE name = %s", (name,) )
+    con.commit()
+
+    print()
+    print( "Manager successfully deleted!" )
+
+
 # database connection request. change fields according to your local machine's corresponding value
 con = psycopg2.connect(
     database="dbproj",
@@ -376,6 +441,9 @@ while True:
     print("11. Delete a player")
     print("12. Delete a team")
     print("13. Delete a game")
+    print("14. Create a Manager")
+    print("15. View all Managers")
+    print("16. Delete a Manager")
     print("0. Exit")
     
     print("")
@@ -407,6 +475,12 @@ while True:
         removeTeam()
     elif choice == "13":
         removeGame()
+    elif choice == "14":
+        insertManager()
+    elif choice == "15":
+        viewAllManagers()
+    elif choice == "16":
+        removeManager()
     elif choice == "0":
         print("")
         print("Thank you for using FIFAgres! Have a nice day!")
