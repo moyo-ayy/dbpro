@@ -1,7 +1,68 @@
 import psycopg2
+import bcrypt
 import random
 from prettytable import PrettyTable
 from datetime import datetime
+
+def insertUser():
+    # Initialize variables
+    username = input("Enter your username: ")
+    type = ""
+    password = ""
+
+    cur.execute("SELECT username FROM users WHERE username = %s",(username,))
+    usernameExists = cur.fetchall()
+    while usernameExists != []:
+
+        print("This username is taken")
+        username = input("Enter your username: ")
+        cur.execute("SELECT username FROM users WHERE username = %s",(username,))
+        usernameExists = cur.fetchall()
+
+    print("What type of user are you: ")
+    print("1. Fan")
+    print("2. Club Owner")
+    print("3. Game Organizer")
+
+    choice = input("Enter your choice: ")
+
+    if choice == "1":
+        type = "fan"
+    elif choice == "2":
+        type = "club owner"
+    elif choice == "3":
+        type = "game organizer"
+    else:
+        print("Invalid input!")
+        return
+
+    password = input("Enter your password: ")
+    password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    print(password)
+
+    cur.execute("INSERT INTO users (username, type, password) VALUES (%s,%s,%s)",(username,type,password))
+    con.commit()
+    
+def loginUser():
+    username = input("Enter your username: ")
+    password = input("Enter your password: ")
+    
+    cur.execute("SELECT * FROM users where username = %s",(username,))
+    userInfo = cur.fetchone()
+    
+    if userInfo == None:
+        print("Username does not exist")
+        return
+
+    actualPassword = bytes.fromhex(userInfo[2][2:])
+
+    # Check if the entered password matches the stored hashed password
+    if bcrypt.checkpw(password.encode('utf-8'), actualPassword):
+        print("\nPassword is correct.")
+        return True
+    else:
+        print("\nPassword is incorrect.")
+        return False
 
 def insertPlayer():
     # Initialize variables
@@ -674,12 +735,14 @@ def updateGame():
 con = psycopg2.connect(
     database="dbproj",
     user="postgres",
-    password="password",
+    password="adekunmi",
     host="localhost",
     port= '5432'
 )
 
 cur = con.cursor()
+
+currentUser = []
 
 # postgres super user menu
 while True:
@@ -705,6 +768,8 @@ while True:
     print("17. Update a player")
     print("18: Update a game")
     print("19. Update a team")
+    print("20. Create a user")
+    print("21. Login a user")
     print("0. Exit")
     
     print("")
@@ -748,6 +813,10 @@ while True:
         updateGame()
     elif choice == "19":
         updateTeam()
+    elif choice == "20":
+        insertUser()
+    elif choice == "21":
+        loginUser()
     elif choice == "0":
         print("")
         print("Thank you for using FIFAgres! Have a nice day!")
