@@ -3,6 +3,7 @@ import bcrypt
 import random
 from prettytable import PrettyTable
 from datetime import datetime
+import re
 
 def insertUser():
     # Initialize variables
@@ -58,11 +59,17 @@ def loginUser():
 
     # Check if the entered password matches the stored hashed password
     if bcrypt.checkpw(password.encode('utf-8'), actualPassword):
-        print("\nPassword is correct.")
-        return True
+        print("\nPassword is correct!")
+        cur.execute("SELECT type FROM users where username = %s",(username,))
+        userType = cur.fetchone()
+        userType = userType[0]
+        userType = userType.strip()
+        userType = userType.lower()
+        userType = re.sub("[^a-z]", "", userType)
+        return userType
     else:
         print("\nPassword is incorrect.")
-        return False
+        return "notYetLoggedIn"
 
 def insertPlayer():
     # Initialize variables
@@ -735,7 +742,7 @@ def updateGame():
 con = psycopg2.connect(
     database="dbproj",
     user="postgres",
-    password="adekunmi",
+    password="password",
     host="localhost",
     port= '5432'
 )
@@ -744,10 +751,12 @@ cur = con.cursor()
 
 currentUser = []
 
+userType = "notYetLoggedIn"
+
 # postgres super user menu
-while True:
+def postgresSuperUserMenu():
     print("")
-    print("Welcome back to FIFAgres! What would you like to do?")
+    print("Welcome back to FIFAgres! As a postgres superuser, what would you like to do?")
     print("")
     print("1. Create a player")
     print("2. Create a team")
@@ -822,7 +831,126 @@ while True:
         print("Thank you for using FIFAgres! Have a nice day!")
         print("")
         con.close()
-        break
+        return 0
     else:
         print("")
         print("Invalid input! Please select from one of the inputs below.")
+
+def fanMenu():
+    while True:
+        print("")
+        print(f"Welcome back to FIFAgres! As a fan, what would you like to do?")
+        print("")
+        print("1. View all players")
+        print("2. View all teams")
+        print("3. View all games")
+        print("4. Display a player's information")
+        print("5. Display a team's roster")
+        print("0. Exit")
+        
+        print("")
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            viewAllPlayers()
+        elif choice == "2":
+            viewAllTeams()
+        elif choice == "3":
+            viewAllGames()
+        elif choice == "4":
+            displayPlayer()
+        elif choice == "5":
+            displayTeam()
+        elif choice == "0":
+            print("")
+            print("Thank you for using FIFAgres! Have a nice day!")
+            print("")
+            con.close()
+            return 0
+        else:
+            print("")
+            print("Invalid input! Please select from one of the inputs below.")
+
+def clubOwnerMenu():
+    print("")
+    print("Welcome back to FIFAgres! As a club owner, what would you like to do?")
+    print("")
+    print("1. View all players")
+    print("2. View all teams")
+    print("3. View all games")
+    print("4. Display a player's information")
+    print("5. Display a team's roster")
+    print("6. Add player to team")
+    print("7. Remove player from team")
+    print("8. View all Managers")
+    print("9. Delete a Manager")
+    print("10. Update a player")
+    print("11. Update a team")
+    print("0. Exit")
+    
+    print("")
+    choice = input("Enter your choice: ")
+
+    if choice == "1":
+        viewAllPlayers()
+    elif choice == "2":
+        viewAllTeams()
+    elif choice == "3":
+        viewAllGames()
+    elif choice == "4":
+        displayPlayer()
+    elif choice == "5":
+        displayTeam()
+    elif choice == "6":
+        addPlayerToTeam()
+    elif choice == "7":
+        removePlayerFromTeam()
+    elif choice == "8":
+        viewAllManagers()
+    elif choice == "9":
+        removeManager()
+    elif choice == "10":
+        updatePlayer()
+    elif choice == "11":
+        updateTeam()
+    elif choice == "0":
+        print("")
+        print("Thank you for using FIFAgres! Have a nice day!")
+        print("")
+        con.close()
+        return 0
+    else:
+        print("")
+        print("Invalid input! Please select from one of the inputs below.")
+
+# actual program
+while True:
+    if userType == "notYetLoggedIn":
+        userType = loginUser()
+        continue
+
+    ret = 1
+
+    if userType == "postgresSuperUser":
+        while True:
+            ret = postgresSuperUserMenu()
+            if ret == 0:
+                break
+    elif userType == "fan":
+        while True:
+            ret = fanMenu()
+            if ret == 0:
+                break
+    elif userType == "clubowner":
+        while True:
+            ret = clubOwnerMenu()
+            if ret == 0:
+                break
+    else:
+        print()
+        print( "Unknown user type!" )
+        print()
+        ret = 0
+
+    if ret == 0:
+        break
