@@ -53,7 +53,7 @@ def insertUser():
     print( "User successfully created!" )
 
 def viewAllUsers():
-    cur.execute("SELECT name, type FROM users ORDER BY username")
+    cur.execute("SELECT username, type FROM users ORDER BY username")
     games = cur.fetchall()
 
     table = PrettyTable()
@@ -1005,6 +1005,16 @@ def gameOrganizerMenu():
         print("Invalid input! Please select from one of the inputs below.")
 
 # actual program
+print("")
+print("   ▄████████  ▄█     ▄████████    ▄████████    ▄██████▄     ▄████████    ▄████████    ▄████████ ")
+print("  ███    ███ ███    ███    ███   ███    ███   ███    ███   ███    ███   ███    ███   ███    ███ ")
+print("  ███    █▀  ███▌   ███    █▀    ███    ███   ███    █▀    ███    ███   ███    █▀    ███    █▀  ")
+print(" ▄███▄▄▄     ███▌  ▄███▄▄▄       ███    ███  ▄███         ▄███▄▄▄▄██▀  ▄███▄▄▄       ███        ")
+print("▀▀███▀▀▀     ███▌ ▀▀███▀▀▀     ▀███████████ ▀▀███ ████▄  ▀▀███▀▀▀▀▀   ▀▀███▀▀▀     ▀███████████ ")
+print("  ███        ███    ███          ███    ███   ███    ███ ▀███████████   ███    █▄           ███ ")
+print("  ███        ███    ███          ███    ███   ███    ███   ███    ███   ███    ███    ▄█    ███ ")
+print("  ███        █▀     ███          ███    █▀    ████████▀    ███    ███   ██████████  ▄████████▀  ")
+print("                                                           ███    ███                           ")
 print("")
 print("Welcome to FIFAgres! Please log in!")
 print("")
