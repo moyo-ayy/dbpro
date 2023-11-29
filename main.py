@@ -16,7 +16,7 @@ def insertUser():
     usernameExists = cur.fetchall()
     while usernameExists != []:
 
-        print("This username is taken! Please try a different one!")
+        print("This username is already taken taken! Please try a different one!")
         username = input("Enter your username: ")
         cur.execute("SELECT username FROM users WHERE username = %s",(username,))
         usernameExists = cur.fetchall()
@@ -261,6 +261,13 @@ def insertManager():
         manager_id = 1
     else:
         manager_id = mids[0][0] + 1
+
+    cur.execute( "SELECT * FROM managers WHERE name = %s", (name,) )
+    manager = cur.fetchone()
+    if manager != None:
+        print()
+        print("This coach already exists!")
+        return
 
     teamName = input("Enter the team that the coach coaches: ")
     teamName = teamName.strip()
