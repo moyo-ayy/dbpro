@@ -169,26 +169,26 @@ def insertGame():
     leftTeamName = input("Enter the Left Team Name: ")
     leftTeamName = leftTeamName.strip()
     cur.execute("SELECT tid FROM teams WHERE name = %s",(leftTeamName,))
-    leftTeamID = cur.fetchall()
+    leftTeamID = cur.fetchone()
     #after getting the tid, do input validation and fetch the players
-    if leftTeamID == []:
-        print("This team does not exist")
+    if leftTeamID == None:
+        print("\n This team does not exist!")
         return
 
     rightTeamName = input("Enter the Right Team Name: ")
     rightTeamName = rightTeamName.strip()
     cur.execute("SELECT tid FROM teams WHERE name = %s",(rightTeamName,))
-    rightTeamID = cur.fetchall()
+    rightTeamID = cur.fetchone()
     #after getting the tid, do input validation and fetch the players
-    if leftTeamID == []:
-        print("This team does not exist")
+    if rightTeamID == None:
+        print("\n This team does not exist!")
         return
 
     # Generate a random 9-digit game ID
     game_id = random.randint(10**8, (10**9)-1)
 
     # Actual data insertion
-    cur.execute("INSERT INTO games (date, location, leftteamscore, rightteamscore, gid, leftteam, rightteam) VALUES (%s, %s, %s, %s, %s, %s, %s)", (date, location, leftteamscore, rightteamscore, game_id, leftTeamID[0][0], rightTeamID[0][0]))
+    cur.execute("INSERT INTO games (date, location, leftteamscore, rightteamscore, gid, leftteam, rightteam) VALUES (%s, %s, %s, %s, %s, %s, %s)", (date, location, leftteamscore, rightteamscore, game_id, leftTeamID[0], rightTeamID[0]))
     con.commit()
 
     print()
