@@ -100,7 +100,7 @@ def insertPlayer():
     name = input("Enter player name: ")
 
     cur.execute("SELECT * FROM players WHERE name = %s", (name,) )
-    existCheck = cur.fetchone
+    existCheck = cur.fetchone()
     if existCheck != None:
         print("")
         print("This player already exists!")
@@ -158,15 +158,21 @@ def insertGame():
         try:
             date = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
             if date > datetime.now():
-                print("")
-                print("Only games that have already concluded can be added!")
-                return
+                print("Only games that have already concluded can be added! Please enter a time and date before today's date.")
+                continue
             break
         except ValueError:
-            print("Invalid date format. Please use the format YYYY-MM-DD HH:MM:SS.")
+            print("Invalid date format. Please use the format YYYY-MM-DD HH:MM:SS and make sure all date values are realistic.")
 
     #location variable
     location = input("Enter the location: ")
+
+    cur.execute("SELECT * FROM games WHERE date = %s AND location = %s", (date, location,) )
+    existCheck = cur.fetchone()
+    if existCheck != None:
+        print("")
+        print("Multiple games cannot be played at the same exact location at the same exact time!")
+        return
 
     #left and right team score initilaization and validation
     leftteamscore = (input("Enter the left team score: "))
@@ -186,7 +192,7 @@ def insertGame():
     leftTeamID = cur.fetchone()
     #after getting the tid, do input validation and fetch the players
     if leftTeamID == None:
-        print("\n This team does not exist!")
+        print("This team does not exist!")
         return
 
     rightTeamName = input("Enter the Right Team Name: ")
@@ -195,7 +201,12 @@ def insertGame():
     rightTeamID = cur.fetchone()
     #after getting the tid, do input validation and fetch the players
     if rightTeamID == None:
-        print("\n This team does not exist!")
+        print("")
+        print("This team does not exist!")
+        return
+    elif rightTeamID == leftTeamID:
+        print("")
+        print("A team cannot play against itself!")
         return
 
     # Generate a random 9-digit game ID
@@ -224,6 +235,13 @@ def viewAllGames():
 
 def insertTeam():
     name = input("Enter team name: ")
+    cur.execute("SELECT * FROM teams WHERE name = %s", (name,) )
+    existCheck = cur.fetchone()
+    if existCheck != None:
+        print("")
+        print("This team already exists!")
+        return
+    
     league = input("Enter team league: ")
 
     #Automate team_id
