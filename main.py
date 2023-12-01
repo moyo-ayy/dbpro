@@ -845,7 +845,6 @@ def postgresSuperUserMenu():
     print("Users:")
     print("20. View all users")
     print("21. Create a user")
-    print("22. Login a user")
     print("")
     print("0. Exit")
     
@@ -894,8 +893,6 @@ def postgresSuperUserMenu():
         viewAllUsers()
     elif choice == "21":
         insertUser()
-    elif choice == "22":
-        loginUser()
     elif choice == "0":
         print("")
         print("Thank you for using FIFAgres! Have a nice day!")
@@ -1056,6 +1053,7 @@ print("  ███        █▀     ███          ███    █▀    �
 print("                                                           ███    ███                           ")
 print("")
 print("Welcome to FIFAgres! Please log in!")
+print("First time here? Please ask a postgres superuser to create an account for you!")
 print("")
 
 while True:
