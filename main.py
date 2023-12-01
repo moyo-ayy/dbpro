@@ -96,6 +96,13 @@ def insertPlayer():
     # Initialize variables
     name = input("Enter player name: ")
 
+    cur.execute("SELECT * FROM players WHERE name = %s", (name,) )
+    existCheck = cur.fetchone
+    if existCheck != None:
+        print("")
+        print("This player already exists!")
+        return
+
     #Automate player_id
     cur.execute("SELECT pid FROM PLAYERS ORDER BY pid DESC")
     pids = cur.fetchall()
