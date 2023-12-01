@@ -69,15 +69,15 @@ def viewAllUsers():
     
 def loginUser():
     username = input("Enter your username: ")
-    password = getpass("Enter your password: ")
-    
+
     cur.execute("SELECT * FROM users where username = %s",(username,))
-    userInfo = cur.fetchone()
-    
+    userInfo = cur.fetchone() 
     if userInfo == None:
         print()
         print("Username does not exist!")
         return
+    
+    password = getpass("Enter your password: ")
 
     actualPassword = bytes.fromhex(userInfo[2][2:])
 
