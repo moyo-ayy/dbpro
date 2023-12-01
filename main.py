@@ -26,17 +26,20 @@ def insertUser():
     print("2. Team Organizer")
     print("3. Game Organizer")
 
-    choice = input("Enter your choice: ")
+    while True:
+        choice = input("Enter the number of what type of user you are: ")
 
-    if choice == "1":
-        type = "fan"
-    elif choice == "2":
-        type = "club owner"
-    elif choice == "3":
-        type = "game organizer"
-    else:
-        print("Invalid input!")
-        return
+        if choice == "1":
+            type = "fan"
+            break
+        elif choice == "2":
+            type = "team organizer"
+            break
+        elif choice == "3":
+            type = "game organizer"
+            break
+        else:
+            print("Invalid input! Please choose one of the 3 types!")
 
     password = getpass("Enter your password: ")
     confirmPassword = getpass( "Confirm password: " )
@@ -154,6 +157,10 @@ def insertGame():
         date_str = input("Enter the date of the game (YYYY-MM-DD HH:MM:SS): ")
         try:
             date = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+            if date > datetime.now():
+                print("")
+                print("Only games that have already concluded can be added!")
+                return
             break
         except ValueError:
             print("Invalid date format. Please use the format YYYY-MM-DD HH:MM:SS.")
@@ -321,7 +328,7 @@ def displayTeam():
         print()
         print("This team does not exist!")
         return
-    cur.execute("SELECT p.name, pf.position FROM playsFor pf NATURAL JOIN players p WHERE pf.tid = %s",(team[0][0],))
+    cur.execute("SELECT p.name, pf.position FROM playsFor pf NATURAL JOIN players p WHERE pf.tid = %s ORDER BY p.name",(team[0][0],))
     players = cur.fetchall()
 
     table = PrettyTable()
@@ -346,7 +353,7 @@ def viewAllPlayers():
     print(table)
 
 def viewAllManagers():
-    cur.execute("SELECT m.name,t.name FROM managers m JOIN teams t ON m.tid = t.tid")
+    cur.execute("SELECT m.name,t.name FROM managers m JOIN teams t ON m.tid = t.tid ORDER BY m.name")
     managers = cur.fetchall()
 
     table = PrettyTable()
@@ -1054,7 +1061,7 @@ while True:
             ret = fanMenu()
             if ret == 0:
                 break
-    elif userType == "clubowner":
+    elif userType == "teamorganizer":
         print("")
         print("Welcome back to FIFAgres! As a team organizer, what would you like to do?")
         while True:
